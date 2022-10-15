@@ -1,0 +1,97 @@
+create WAREHOUSE ineuron;
+
+
+create database ineuron_assignment;
+use ineuron_assignment;
+create table if not exists shopping_history (
+    product varchar (50) not null,
+    quantity integer not null,
+    unit_price integer not null
+);
+--1st question from assignment 1
+
+show columns in shopping_history;
+insert into shopping_history values ('milk', 3, 10),('bread', 7, 3),('bread', 5, 2);
+
+select *from shopping_history;
+
+select product,sum(quantity * unit_price) as total_price
+from shopping_history
+group by product;
+
+--2 Question from assignment 2;
+
+    create table if not exists phones (
+        name varchar(20) not null unique,
+        phone_number integer not null unique
+    );
+create table if not exists calls (
+        id integer not null,
+        caller integer not null,
+        callee integer not null,
+        duration integer not null,
+        unique(id)
+    );
+insert into phones values ('jack', 1234),('Lena', 3333),('Mark', 9999),('Anna', 7582);
+insert into calls values (25, 1234, 7582, 8),(7, 9999, 7852, 1),(18, 9999, 3333, 4),(2, 7582, 3333, 3),(3, 3333, 1234, 1),(21, 3333, 1234, 1);
+
+with call_duration as (
+    select caller as phone_number,sum(duration) as duration from calls group by caller
+    union all
+    select callee as phone_number,sum(duration) as duration from calls group by callee
+    )
+SELECT name
+FROM phones p
+join call_duration cd on cd.phone_number = p.phone_number
+GROUP BY name
+HAVING SUM(duration) >= 10
+ORDER BY name;
+
+--3rd question from assignment
+
+create table transactions
+(	amount int,
+	`date` date not null)
+
+insert into transactions  values (1000,'2020-01-06'),(-10,'2020-01-14'),(-75,'2020-01-20'),(-5,'2020-01-25'),(-4,'2020-01-29'),(2000,'2020-03-10'),(-75,'2020-03-12'),(-20,'2020-03-15'),
+(40,'2020-03-15'),(-50,'2020-03-17'),(200,'2020-10-10'),(-200,'2020-10-10')
+
+alter table transactions modify `date` date 
+
+select * from transactions
+
+show columns in transactions 
+
+With D as(
+select Count(distinct(to_char(`date`,'MMMM'))) as Mon_Count from transactions where Amount < 0
+group by to_char(`date`,'MMMM')
+Having Sum(Amount) <= -100 and Count(Amount) >=3),
+tm as(
+select (12 - zeroifnull(sum(D.Mon_Count)))*5 as ded from  D),
+tr as
+(Select sum(amount) as ff
+from transactions)
+Select tr.ff - tm.ded from tr,tm;
+
+--4th question from assignment
+
+create table transactons1
+(   amount int not null,
+    `date` date not null
+);
+
+insert into transactons1 values (1,'2020-06-29'),(35,'2020-02-20'),(-50,'2020-02-03'),(-1,'2020-02-26'),(-200,'2020-08-01'),
+(-44,'2020-02-07'),(-5,'2020-02-25'),(1,'2020-06-29'),(1,'2020-06-29'),(-100,'2020-12-29'),(-100,'2020-12-30'),(-100,'2020-12-31')
+
+select * from transactons1 
+
+with t1 as
+    (select count(distinct(to_char(`date`,'MMMM')))as month_count  from transactons1 
+    where amount < 0
+    group by to_char(`date`,'MMMM')
+    having sum(amount) <=-100 and count(amount)>=3),
+t2 as
+    (select (12-zeroifnull(sum(month_count)))*5 as fee from t1),
+t3 as
+    (select sum(amount) as total_amount from transactons1 )
+select total_amount - fee as balance from t3,t2 
