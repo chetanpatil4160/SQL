@@ -1,0 +1,137 @@
+use ineuron_asignment
+ 
+ # cretaed first  table
+ 
+Create table Accidents
+(S_No INT,
+Accident_Index Varchar(50),
+Location_Easting_OSGR int,
+Location_Northing_OSGR INT,
+Longitude decimal(7,6),
+Latitude decimal(8,6),
+Police_Force INT,
+Accident_Severity INT,
+Number_of_Vehicles INT,
+Number_of_Casualties INT,
+Date varchar(30),
+Day_of_Week INT,
+`Time` Time,
+Local_Authority_District INT,
+Local_Authority_Highway Varchar(50),
+first_Road_Class INT,
+first_Road_Number INT,
+Road_Type INT,
+Speed_limit INT,
+Junction_Detail INT,
+Junction_Control INT,
+second_Road_Class INT,
+Second_Road_Number INT,
+Pedestrian_Crossing_Human_Control INT,
+Pedestrian_Crossing_Physical_Facilities INT,
+Light_Conditions INT,
+Weather_Conditions INT,
+Road_Surface_Conditions INT,
+Special_Conditions_at_Site INT,
+Carriageway_Hazards INT,
+Urban_or_Rural_Area INT,
+Did_Police_Officer_Attend_Scene_of_Accident INT,
+LSOA_of_Accident_Location varchar(50));
+
+# inserted data in that accident table
+
+load data infile
+"D:/sql abhi/SQL-Projects-main/Accident 2015/acc.csv"
+into  table Accidents	
+fields terminated by ','
+enclosed by '"'
+lines terminated by '\n'
+ignore 1 rows
+
+# created second table 
+ 
+Create Table Vechile(
+S_No INT,
+Accident_Index Varchar(50),
+Vehicle_Reference INT,
+Vehicle_Type INT,
+Towing_and_Articulation INT,
+Vehicle_Manoeuvre INT,
+Vehicle_Location_Restricted_Lane INT,
+Junction_Location INT,
+Skidding_and_Overturning INT,
+Hit_Object_in_Carriageway INT,
+Vehicle_Leaving_Carriageway INT,
+Hit_Object_off_Carriageway INT,
+`1st_Point_of_Impact` INT,
+Was_Vehicle_Left_Hand_Drive INT,
+Journey_Purpose_of_Driver INT,
+Sex_of_Driver INT,
+Age_of_Driver INT,
+Age_Band_of_Driver INT,
+`Engine_Capacity_(CC)` INT,
+Propulsion_Code INT,
+Age_of_Vehicle INT,
+Driver_IMD_Decile INT,
+Driver_Home_Area_Type INT,
+Vehicle_IMD_Decile INT
+);
+
+# inserted data in the vehical table
+
+load data infile
+"D:/sql abhi/SQL-Projects-main/Accident 2015/Vechile - Vechile (1).csv"
+into  table Vechile	
+fields terminated by ','
+enclosed by '"'
+lines terminated by '\n'
+ignore 1 rows
+
+# creted third table
+
+Create table Vechile_type(
+`Code` INT,
+Label Varchar(50)
+);
+
+load data infile
+"D:/sql abhi/SQL-Projects-main/Accident 2015/VechileType - VechileType (1).csv"
+into  table Vechile_type 	
+fields terminated by ','
+enclosed by '"'
+lines terminated by '\n'
+ignore 1 rows
+
+# Evaluate the median severity value of accidents caused by various Motorcycles
+
+select * from Accidents
+select * from Vechile
+select * from Vechile_type
+
+select avg(a.Accident_Severity) as median_sev, vt.label
+from Accidents a join Vechile v on a.Accident_Index = v.Accident_Index
+join Vechile_type vt on v.Vehicle_Type = vt.code
+where vt.label LIKE 'Motorcycle%'
+group by  vt.label 
+      
+# Evaluate Accident Severity and Total Accidents per Vehicle Type
+
+select v.Vehicle_Type, a.Accident_Severity,count(v.Vehicle_Type)
+from Accidents a join Vechile v on a.Accident_Index = v.Accident_Index 
+join Vechile_type vt on v.Vehicle_Type = vt.code
+group by v.Vehicle_Type 
+
+# Calculate the Average Severity by vehicle type.
+
+select vt.label, avg(a.Accident_Severity) as severity
+from Accidents a join Vechile v on a.Accident_Index = v.Accident_Index 
+join Vechile_type vt on v.Vehicle_Type = vt.code
+group by v.Vehicle_Type
+order by a.Accident_Severity
+
+/* Average Severity by vehicle type */
+
+select avg(a.Accident_Severity) as severity,vt.label,count(v.Vehicle_Type) as number_of_accident
+from Accidents a join Vechile v on a.Accident_Index = v.Accident_Index
+join Vechile_type vt on v.Vehicle_Type = vt.code
+where vt.label LIKE '%Motorcycle%'
+group by  vt.label 
